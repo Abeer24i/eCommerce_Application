@@ -1,2 +1,25 @@
+
+
+# IntelliJ IDEA specific files
 .idea/
+*.iml
+
+# MacOS specific files
+.DS_Store
+
+# Build directories
 /starter_code/target/
+out/
+
+# Logs and temp files
+*.log
+*.tmp
+
+# Compiled files
+*.class
+
+# Dependency directories
+node_modules/
+
+
+
