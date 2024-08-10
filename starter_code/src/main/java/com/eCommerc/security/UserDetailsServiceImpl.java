@@ -10,9 +10,8 @@ import org.springframework.stereotype.Service;
 
 import com.eCommerc.model.persistence.User;
 import com.eCommerc.model.persistence.repositories.UserRepository;
-
 @Service
-public class UserDetailsServiceImpl implements UserDetailsService {
+public class UserDetailsServiceImpl implements UserDetailsService  {
 
     @Autowired
     private UserRepository userRepository;
@@ -25,4 +24,5 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), Collections.emptyList());
     }
+
 }

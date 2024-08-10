@@ -19,13 +19,10 @@ import com.auth0.jwt.JWT;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 
-@Component
 public class JWTAuthenticationVerficationFilter extends BasicAuthenticationFilter {
-
     public JWTAuthenticationVerficationFilter(AuthenticationManager authManager) {
         super(authManager);
     }
-
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
             throws IOException, ServletException {
@@ -35,7 +32,6 @@ public class JWTAuthenticationVerficationFilter extends BasicAuthenticationFilte
             chain.doFilter(req, res);
             return;
         }
-
         UsernamePasswordAuthenticationToken authentication = getAuthentication(req);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);

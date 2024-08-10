@@ -18,8 +18,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 
+public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private AuthenticationManager authenticationManager;
 
     public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
@@ -44,15 +45,16 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
     @Override
-    public void successfulAuthentication(HttpServletRequest req,
-                                         HttpServletResponse res,
-                                         FilterChain chain,
-                                         Authentication auth) throws IOException, ServletException {
+    protected void successfulAuthentication(HttpServletRequest req,
+                                            HttpServletResponse res,
+                                            FilterChain chain,
+                                            Authentication auth) throws IOException, ServletException {
 
         String token = JWT.create()
                 .withSubject(((org.springframework.security.core.userdetails.User) auth.getPrincipal()).getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
-                .sign(Algorithm.HMAC512(SecurityConstants.SECRET.getBytes()));
+                .sign(HMAC512(SecurityConstants.SECRET.getBytes()));
         res.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);
     }
+
 }

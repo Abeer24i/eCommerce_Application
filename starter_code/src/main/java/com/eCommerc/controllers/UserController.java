@@ -1,12 +1,16 @@
 package com.eCommerc.controllers;
 
-import com.eCommerc.logging.CsvLogger;
 import com.eCommerc.model.persistence.Cart;
 import com.eCommerc.model.persistence.User;
 import com.eCommerc.model.persistence.repositories.CartRepository;
 import com.eCommerc.model.persistence.repositories.UserRepository;
 import com.eCommerc.model.requests.CreateUserRequest;
+
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,8 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/user")
 public class UserController {
 
-	@Autowired
-	private CsvLogger csvLogger;
+	private static final Logger logger = LogManager.getLogger(UserController.class);
 
 	@Autowired
 	private UserRepository userRepository;
@@ -42,14 +45,11 @@ public class UserController {
 	@GetMapping("/{username}")
 	public ResponseEntity<User> findByUserName(@PathVariable String username) {
 		User user = userRepository.findByUsername(username);
-
 		if(user == null){
-			csvLogger.logToCsv(null,"findByUserName", null, null, "Not found user with name  " + user.getUsername() , "NotFound");
-			return	ResponseEntity.notFound().build();
-		} else {
-			csvLogger.logToCsv(user.getId(),"findByUserName", null, null, "Getting user with name  " + user.getUsername() , "Success");
-			return  ResponseEntity.ok(user);
-
+			logger.error("Exception: User {}, does not exist", username);
+			return ResponseEntity.notFound().build();
+		}else{
+			return ResponseEntity.ok(user);
 		}
 	}
 
@@ -59,25 +59,16 @@ public class UserController {
 		user.setUsername(createUserRequest.getUsername());
 
 		Cart cart = new Cart();
-
 		cartRepository.save(cart);
 		user.setCart(cart);
-
-		if(createUserRequest.getPassword().length() < 7 ||
-				!createUserRequest.getPassword().equals(createUserRequest.getConfirmPassword())) {
+		if(createUserRequest.getPassword().length() < 7 || !createUserRequest.getPassword().equals(createUserRequest.getConfirmPassword())){
+			logger.error("Exception: User was not created, because password is bigger than 7 characters or password does not match");
 			return ResponseEntity.badRequest().build();
 		}
-
 		user.setPassword(bCryptPasswordEncoder.encode(createUserRequest.getPassword()));
-
-		try {
-			User newUser = userRepository.save(user);
-			csvLogger.logToCsv(newUser.getId(),"createNewUserwithCart", "cart", newUser.getCart().getId(), "Successfully created user with username " + newUser.getUsername() , "Success");
-
-		}catch (Error e) {  // | IOException e
-			csvLogger.logToCsv(null,"createNewUserwithCart", "cart", null, "Failed creating user with username " + user.getUsername() , "Error");
-		}
-
-		return ResponseEntity.ok(user);
+		userRepository.save(user);
+		logger.info("Created user successfully");
+		return ResponseEntity.status(HttpStatus.CREATED).body(user);
 	}
+
 }
