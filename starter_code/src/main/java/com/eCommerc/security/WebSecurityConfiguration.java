@@ -36,6 +36,15 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.exceptionHandling().authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
     }
 
+    /*@Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+                .authorizeRequests()
+                .antMatchers("/api/**").permitAll()
+                .anyRequest().authenticated();
+    }
+*/
+
     @Override
     @Bean
     public AuthenticationManager authenticationManagerBean() throws Exception {

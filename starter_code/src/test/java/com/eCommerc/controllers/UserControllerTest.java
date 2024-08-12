@@ -20,6 +20,10 @@ import static org.mockito.Mockito.when;
 public class UserControllerTest {
 
     // public static final String _userName = "DaVal";
+
+    public static final String USER_NAME = "test";
+
+
     private UserController userController;
 
     private final UserRepository userRepo = mock(UserRepository.class);
@@ -37,19 +41,19 @@ public class UserControllerTest {
     }
 
     @Test
-    public void createUserHappyPath() throws Exception {
+    public void createUserHappyPath() {
         when(encoder.encode("testPassword")).thenReturn("thisIsHashed");
         CreateUserRequest r = new CreateUserRequest();
-        r.setUsername("test");
+        r.setUsername(USER_NAME);
         r.setPassword("testPassword");
         r.setConfirmPassword("testPassword");
         final ResponseEntity<User> response = userController.createUser(r);
         assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(201, response.getStatusCodeValue());
         User u = response.getBody();
         assertNotNull(u);
         assertEquals(0, u.getId());
-        assertEquals("test", u.getUsername());
+        assertEquals(USER_NAME, u.getUsername());
         assertEquals("thisIsHashed", u.getPassword());
     }
 
